@@ -1,8 +1,7 @@
-##################################    IAM     ##########################################################
 
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
-  RootRole:
+  GetUrlLambdaRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -27,8 +26,7 @@ Resources:
                 Action: 'dynamodb::*'
                 Resource: '*'
 
-##################################    IAM     ##########################################################
-##################################    RESOURCES    #####################################################
+
 
   GetUrlCodeBucket:
     Type: AWS::S3::Bucket
@@ -43,8 +41,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: This lambda gets a register of url from DynamoDb
-      #Required #entender função get att
-      Role: !GetAtt MyLambdaRole.arn
+      Role: !GetAtt GetUrlLambdaRole.arn
       Handler: src.service.getUrl.LambdaMethodHandler
       FunctionName: get-url
       Runtime: java11
@@ -58,4 +55,3 @@ Resources:
       TracingConfig:
         Mode: Active
 
-##################################    RESOURCES    #####################################################
