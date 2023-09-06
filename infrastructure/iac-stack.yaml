@@ -1,0 +1,61 @@
+##################################    IAM     ##########################################################
+
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  RootRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 's3:*'
+                Resource: '*'
+              - Effect: Allow
+                Action: 'dynamodb::*'
+                Resource: '*'
+
+##################################    IAM     ##########################################################
+##################################    RESOURCES    #####################################################
+
+  GetUrlCodeBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: GetUrlCodeForLambdaFunction
+      Tags:
+        - Key: name
+          Value: BucketForCode
+
+  GetUrlLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: This lambda gets a register of url from DynamoDb
+      #Required #entender função get att
+      Role: !GetAtt MyLambdaRole.arn
+      Handler: src.service.getUrl.LambdaMethodHandler
+      FunctionName: get-url
+      Runtime: java11
+      Code:
+        S3Bucket: GetUrlCodeForLambdaFunction
+        S3Key: project.urlShortener-1.0-SNAPSHOT.jar
+      Timeout: 5
+      Tags:
+        - Key: name
+          Value: GetUrlLambdaFunction
+      TracingConfig:
+        Mode: Active
+
+##################################    RESOURCES    #####################################################
