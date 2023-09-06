@@ -23,16 +23,14 @@ Resources:
                 Action: 's3:*'
                 Resource: '*'
               - Effect: Allow
-                Action: 'dynamodb::*'
+                Action: 'dynamodb:*'
                 Resource: '*'
-
-
 
   GetUrlCodeBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
+    DeletionPolicy: Delete
     Properties:
-      BucketName: GetUrlCodeForLambdaFunction
+      BucketName: bucket-stack
       Tags:
         - Key: name
           Value: BucketForCode
@@ -41,12 +39,12 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: This lambda gets a register of url from DynamoDb
-      Role: !GetAtt GetUrlLambdaRole.arn
+      Role: !GetAtt GetUrlLambdaRole.Arn
       Handler: src.service.getUrl.LambdaMethodHandler
       FunctionName: get-url
       Runtime: java11
       Code:
-        S3Bucket: GetUrlCodeForLambdaFunction
+        S3Bucket: get-url-code-for-lambda-function
         S3Key: project.urlShortener-1.0-SNAPSHOT.jar
       Timeout: 5
       Tags:
