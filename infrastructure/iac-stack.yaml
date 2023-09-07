@@ -40,7 +40,7 @@ Resources:
     Properties:
       Description: This lambda gets a register of url from DynamoDb
       Role: !GetAtt GetUrlLambdaRole.Arn
-      Handler: src.service.getUrl.LambdaMethodHandler
+      Handler: url.get.lambda.LambdaMethodHandler::handlerRequest
       FunctionName: get-url
       Runtime: java11
       Code:
