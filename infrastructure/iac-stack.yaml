@@ -53,7 +53,7 @@ Resources:
           Type: Api
           Properties:
             Path: /delete/{url}
-            Method: Put
+            Method: Delete
 
   DynamoDbUrlTable:
     Type: AWS::DynamoDB::Table
