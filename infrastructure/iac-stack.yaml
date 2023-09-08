@@ -29,6 +29,7 @@ Resources:
                     - Ref: 'AWS::AccountId'
                     - ':table/DynamoDbUrlTable'
       Events:
+        #Refactor paths and methods later
         GetAllMethod:
           Type: Api
           Properties:
@@ -60,13 +61,13 @@ Resources:
     Properties:
       TableName: "DynamoDbUrlTable"
       AttributeDefinitions:
-        - AttributeName: "id"
-          AttributeType: "S"
+        - AttributeName: "urlId"
+          AttributeType: "N"
         - AttributeName: "longUrl"
           AttributeType: "S"
           #Add gsi later
       KeySchema:
-        - AttributeName: "id"
+        - AttributeName: "urlId"
           KeyType: "HASH"
         - AttributeName: "longUrl"
           KeyType: "RANGE"
