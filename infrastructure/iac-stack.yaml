@@ -1,55 +1,76 @@
-
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: A backend with a Restful Api endpoint using amazon API Gateway
 Resources:
-  GetUrlLambdaRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: 's3:*'
-                Resource: '*'
-              - Effect: Allow
-                Action: 'dynamodb:*'
-                Resource: '*'
-
-  GetUrlCodeBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
-    Properties:
-      BucketName: bucket-stack
-      Tags:
-        - Key: name
-          Value: BucketForCode
-
-  GetUrlLambdaFunction:
-    Type: AWS::Lambda::Function
+  GetUrlLambda:
+    Type: 'AWS::Serverless::Function'
     Properties:
       Description: This lambda gets a register of url from DynamoDb
-      Role: !GetAtt GetUrlLambdaRole.Arn
       Handler: url.get.lambda.LambdaMethodHandler::handlerRequest
       FunctionName: get-url
-      Runtime: java11
-      Code:
-        S3Bucket: get-url-code-for-lambda-function
-        S3Key: project.urlShortener-1.0-SNAPSHOT.jar
+      Runtime: java8
+      CodeUri: s3://get-url-code-for-lambda-function/project.urlShortener-1.0-SNAPSHOT.jar
       Timeout: 5
-      Tags:
-        - Key: name
-          Value: GetUrlLambdaFunction
-      TracingConfig:
-        Mode: Active
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:DeleteItem'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+              Resource:
+                'Fn::Join':
+                  - ''
+                  - - 'arn:aws:dynamodb:'
+                    - Ref: 'AWS::Region'
+                    - ':'
+                    - Ref: 'AWS::AccountId'
+                    - ':table/DynamoDbUrlTable'
+      Events:
+        GetAllMethod:
+          Type: Api
+          Properties:
+            Path: /get/url
+            Method: Get
+        GetSingleMethod:
+          Type: Api
+          Properties:
+            Path: /get/{url}
+            Method: Get
+        PostMethod:
+          Type: Api
+          Properties:
+            Path: /post/url
+            Method: Post
+        UpdateMethod:
+          Type: Api
+          Properties:
+            Path: /update/{url}
+            Method: Put
+        DeleteMethod:
+          Type: Api
+          Properties:
+            Path: /delete/{url}
+            Method: Put
 
+  DynamoDbUrlTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "DynamoDbUrlTable"
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "longUrl"
+          AttributeType: "S"
+          #Add gsi later
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "longUrl"
+          KeyType: "RANGE"
+
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
