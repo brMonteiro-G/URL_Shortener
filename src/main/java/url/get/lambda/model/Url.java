@@ -22,6 +22,9 @@ public class Url {
     @DynamoDBAttribute(attributeName = "ttl")
     private String ttl;
 
+    @DynamoDBAttribute(attributeName = "active")
+    private Boolean active;
+
     public Integer getUrlId() {
         return urlId;
     }
