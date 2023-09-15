@@ -6,8 +6,8 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Description: This lambda gets a register of url from DynamoDb
-      Handler: url.get.lambda.LambdaMethodHandler::handlerRequest
-      FunctionName: get-url
+      Handler: com.project.urlShortener.Gateway.LambdaMethodHandler::handleRequest
+      FunctionName: lambda-controller
       Runtime: java8
       CodeUri: s3://get-url-code-for-lambda-function/project.urlShortener-1.0-SNAPSHOT.jar
       Timeout: 5
@@ -40,6 +40,11 @@ Resources:
           Properties:
             Path: /get/{url}
             Method: Get
+        PopulateDatabase:
+          Type: Api
+          Properties:
+            Path: /populate
+            Method: Post
         PostMethod:
           Type: Api
           Properties:
@@ -75,3 +80,23 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
+
+
+ #finalizar config tabela de categories
+
+#  Categories:
+#    Type: AWS::DynamoDB::Table
+#    Properties:
+#      TableName: "DynamoDbUrlTable"
+#      AttributeDefinitions:
+#        - AttributeName: "urlId"
+#          AttributeType: "N"
+#      KeySchema:
+#        - AttributeName: "urlId"
+#          KeyType: "HASH"
+#        - AttributeName: "longUrl"
+#          KeyType: "RANGE"
+#
+#      ProvisionedThroughput:
+#        ReadCapacityUnits: "5"
+#        WriteCapacityUnits: "5"
