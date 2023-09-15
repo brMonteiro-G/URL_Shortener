@@ -1,31 +1,26 @@
-package url.get.lambda.repository;
+package com.project.urlShortener.Repository;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import url.get.lambda.model.Url;
+import com.project.urlShortener.Constants.Constants;
+import com.project.urlShortener.Model.Url;
+import com.project.urlShortener.Model.Categories;
 
 public class UrlRepository {
 
     private static DynamoDB dynamoDB;
     private DynamoDBMapper dynamoDBMapper;
-
-    private static final String DYNAMODB_TABLE_NAME = "DynamoDbUrlTable";
 
     public void createItems(Url url) {
         initDynamoDB();
@@ -66,7 +61,7 @@ public class UrlRepository {
 
     public void updateExistingAttributeConditionally() {
 
-        Table table = dynamoDB.getTable(DYNAMODB_TABLE_NAME);
+        Table table = dynamoDB.getTable(Constants.URL_TABLE_NAME);
 
         try {
 
@@ -85,14 +80,14 @@ public class UrlRepository {
             System.out.println(outcome.getItem().toJSONPretty());
 
         } catch (Exception e) {
-            System.err.println("Error updating item in " + DYNAMODB_TABLE_NAME);
+            System.err.println("Error updating item in " + Constants.URL_TABLE_NAME);
             System.err.println(e.getMessage());
         }
     }
 
     public void deleteItem() {
 
-        Table table = dynamoDB.getTable(DYNAMODB_TABLE_NAME);
+        Table table = dynamoDB.getTable(Constants.URL_TABLE_NAME);
 
         try {
 
@@ -107,18 +102,46 @@ public class UrlRepository {
             System.out.println(outcome.getItem().toJSONPretty());
 
         } catch (Exception e) {
-            System.err.println("Error deleting item in " + DYNAMODB_TABLE_NAME);
+            System.err.println("Error deleting item in " + Constants.URL_TABLE_NAME);
             System.err.println(e.getMessage());
         }
     }
 
 
-    private void initDynamoDB() {
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
-        dynamoDBMapper = new DynamoDBMapper(client);
+    public List<Categories> getAllCategories(){
+
+
+        Table table = dynamoDB.getTable(Constants.CATEGORIES_TABLE_NAME);
+
+        List<Categories> categories = dynamoDBMapper.scan(Categories.class, new DynamoDBScanExpression());
+
+
+        //filtrar id
+
+        return categories;
 
     }
 
+
+    public void populateUrlTable(){
+
+        Url mockedUrl = new Url();
+        mockedUrl.setLongUrl("https://portal.tutorialsdojo.com/courses/aws-certified-solutions-architect-associate-practice-exams/?_ga=2.206657427.1497759535.1693109425-1423103866.1693109425&_gl=1*1vp2f83*_ga*MTQyMzEwMzg2Ni4xNjkzMTA5NDI1*_ga_L96TFJ1R9K*MTY5MzEwOTQyNS4xLjAuMTY5MzEwOTQyNS4wLjAuMA..");
+        mockedUrl.setShortUrl("tutorialsdojo-g25fs3.url");
+        mockedUrl.setActive(true);
+        mockedUrl.setClicks(5);
+        mockedUrl.setUrlId(ThreadLocalRandom.current().nextInt());
+
+        System.out.println("Saving object");
+        dynamoDBMapper.save(mockedUrl);
+
+    }
+
+    private void initDynamoDB() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.defaultClient();
+        dynamoDBMapper = new DynamoDBMapper(client);
+
+    }
 
 }
 

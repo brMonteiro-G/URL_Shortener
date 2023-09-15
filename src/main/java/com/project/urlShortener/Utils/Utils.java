@@ -1,9 +1,9 @@
-package url.get.lambda.utils;
+package com.project.urlShortener.Utils;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import url.get.lambda.model.Url;
+import com.project.urlShortener.Model.Url;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class Utils {
     public static Map<String, String> createHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
-        headers.put("X-amazon-author", "Lipsa");
+        headers.put("X-amazon-author", "Gabriel");
         headers.put("X-amazon-apiVersion", "v1");
         return headers;
     }
@@ -38,6 +38,7 @@ public class Utils {
         }
         return url;
     }
+
 
     public static String convertListOfObjToString(List<Url> urls, Context context) {
         String jsonBody = null;
